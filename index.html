@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cuento Interactivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Nota de instrucciones -->
+<div class="note-overlay" id="noteOverlay">
+  <div class="note-card">
+    <button class="note-close" id="noteClose" aria-label="Cerrar">✕</button>
+
+    <div class="note-title">Pasos a seguir</div>
+
+    <ol class="note-list">
+      <li>Darle al botón <strong>Play</strong> arriba a la derecha</li>
+      <li>Regular el volumen, ojalá bajo</li>
+      <li>Clickea la caja</li>
+      <li>Cuando termines, aprieta el botón que aparecerá a la derecha</li>
+      <li>Ojalá te guste 💛</li>
+    </ol>
+  </div>
+</div>
+
+
+  <!-- Audio (sin controles nativos) -->
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="assets/audio/musica.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Mini reproductor -->
+  <div class="mini-player" id="miniPlayer">
+    <button class="mp-btn" id="mpToggle" aria-label="Play/Pause" type="button">▶</button>
+
+    <div class="mp-vol">
+      <span class="mp-ico" aria-hidden="true">🔈</span>
+      <input id="mpVolume" type="range" min="0" max="1" step="0.01" value="0.5" />
+    </div>
+  </div>
+
+  <!-- Botón de video (aparece cuando entras al libro, via JS) -->
+  <button class="video-btn" id="videoBtn" type="button" aria-label="Ver al Final">
+  Aprieta aqui para un besito
+  </button>
+
+
+  <!-- Overlay final con YouTube -->
+  <div class="end-overlay" id="endOverlay" aria-hidden="true">
+    <div class="end-card">
+      <button class="end-close" id="endClose" aria-label="Cerrar" type="button">✕</button>
+
+      <div class="end-title">Fin</div>
+      <div class="end-sub">Mira el video final</div>
+
+      <div class="yt-wrap">
+        <iframe
+          id="ytFrame"
+          src=""
+          title="Video final"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <div class="end-actions">
+        <button id="endReplay" type="button">Ver libro otra vez</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de inicio -->
+  <div id="welcome-screen" class="welcome-screen">
+    <div id="gift-click-area" class="gift-trigger"></div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="wrap" id="main-content">
+    <div class="book" id="book">
+      <div class="cover" id="cover">
+        <div class="cover-face" id="coverFace"></div>
+      </div>
+
+      <div class="openbook">
+        <div class="page static-left" id="staticLeft"></div>
+        <div class="page static-right" id="staticRight"></div>
+
+        <div class="spine-shadow"></div>
+
+        <div class="flipper" id="flipper">
+          <div class="flipper-face front" id="flipperFront"></div>
+          <div class="flipper-face back" id="flipperBack"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn" type="button">Atrás</button>
+      <div id="counter">Portada</div>
+      <button id="nextBtn" type="button">Siguiente</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

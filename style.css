@@ -1,0 +1,383 @@
+:root {
+  --book-w: min(90vw, 1000px);
+  --book-h: calc(var(--book-w) * 0.65);
+  --radius: 12px;
+}
+
+body {
+  margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: #222; color: #fff; font-family: sans-serif; overflow: hidden;
+}
+
+/* --- PANTALLA DE INICIO (Fondoo.jpg) --- */
+.welcome-screen {
+  position: fixed; inset: 0; z-index: 2000;
+  background: url('Fondoo.jpg') no-repeat center center / cover;
+  display: flex; transition: opacity 0.8s ease;
+}
+.welcome-screen.hidden { opacity: 0; pointer-events: none; }
+
+/* ZONA DE CLIC CORREGIDA SEGÚN TU IMAGEN */
+/* AJUSTE FINAL DE LA ZONA DE CLIC */
+.gift-trigger {
+  position: absolute;
+  /* Aumentamos 'top' para que baje más en la imagen */
+  top: 72%; 
+  left: 65%;
+  width: 180px; 
+  height: 180px;
+  cursor: pointer;
+  z-index: 2001;
+  background: rgba(255, 0, 0, 0); /* Sigue transparente */
+  transform: translate(-50%, -50%);
+}
+
+.gift-trigger:hover::before {
+  content: "¡Toca el regalo!"; position: absolute; top: -40px; left: 50%;
+  transform: translateX(-50%); background: white; color: #ff69b4;
+  padding: 8px 15px; border-radius: 20px; font-weight: bold; white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* --- EL LIBRO --- */
+.wrap { 
+  display: flex; flex-direction: column; align-items: center; gap: 20px; 
+  opacity: 0; transition: opacity 0.6s ease;
+}
+.wrap.visible { opacity: 1; pointer-events: auto; }
+
+.book {
+  position: relative;
+  width: var(--book-w);
+  height: var(--book-h);
+  /* Esto da la profundidad al efecto 3D */
+  perspective: 2500px; 
+  transition: transform 0.1s ease-out; /* Hace que el seguimiento del mouse sea fluido */
+}
+
+.page, .flipper-face {
+  position: absolute; top: 0; width: 50%; height: 100%; 
+  background-repeat: no-repeat; background-color: #fff; background-size: 200% 100%;
+}
+
+.cover {
+  position: absolute; top:0; left: 25%; width: 50%; height: 100%;
+  z-index: 100; cursor: pointer; transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(.4,.0,.2,1), opacity 0.4s;
+}
+.cover-face { 
+  width: 100%; height: 100%; background-size: 100% 100%;
+  border-radius: var(--radius); box-shadow: 5px 5px 20px rgba(0,0,0,0.3); 
+}
+.book.opening .cover { transform: rotateY(-90deg); opacity: 0; }
+.book.opened .cover { display: none; }
+.book.opened .openbook { display: block; }
+.openbook { position: absolute; inset: 0; display: none; }
+
+.static-left { left: 0; background-position: 0% 0%; border-radius: var(--radius) 0 0 var(--radius); }
+.static-right { right: 0; background-position: 100% 0%; border-radius: 0 var(--radius) var(--radius) 0; }
+
+.flipper {
+  position: absolute; right: 0; top: 0; width: 50%; height: 100%;
+  z-index: 30; transform-origin: left center; transform-style: preserve-3d;
+}
+.flipper.turning-next { transition: transform 0.7s cubic-bezier(.4,.0,.2,1); transform: rotateY(-180deg); }
+.flipper.no-anim { transition: none !important; }
+
+.flipper-face { width: 100%; backface-visibility: hidden; }
+.flipper-face.front { background-position: 100% 0%; }
+.flipper-face.back { transform: rotateY(180deg); background-position: 0% 0%; background-color: #f9f9f9; }
+
+/* EFECTO DE LOMO CENTRAL */
+.spine-shadow {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 60px; /* Ancho de la sombra central */
+  height: 100%;
+  z-index: 40; /* Por encima de las páginas estáticas */
+  transform: translateX(-50%);
+  pointer-events: none; /* Importante: permite hacer clic a través de la sombra */
+  
+  /* Gradiente que simula la oscuridad del lomo y el brillo de las páginas al curvarse */
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.1) 35%,
+    rgba(0, 0, 0, 0.25) 48%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.25) 52%,
+    rgba(0, 0, 0, 0.1) 65%,
+    transparent
+  );
+}
+/* CONTROLES MADERA */
+.controls { margin-top: 30px; display: flex; gap: 40px; align-items: center; }
+.controls button {
+  width: 80px; 
+  height: 50px; 
+  border: none; 
+  cursor: pointer;
+  background-color: #8B4513; 
+  color: #fdf5e6; 
+  font-weight: bold;
+  background-image: repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(0,0,0,0.1) 5px, rgba(0,0,0,0.1) 10px),
+                    linear-gradient(to bottom, #A0522D, #5D2906);
+  box-shadow: 0 5px 0 #3e1b04; 
+  transition: all 0.2s ease;
+}
+
+#prevBtn { clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%); }
+#nextBtn { clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%); }
+button:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
+#counter { min-width: 140px; text-align: center; color: #e2c08d; font-style: italic; }
+
+.mini-player{
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.mp-btn{
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  font-size: 16px;
+}
+
+.mp-btn:hover{
+  background: rgba(255,255,255,.20);
+}
+
+.mp-vol{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mp-ico{
+  font-size: 14px;
+  opacity: .9;
+}
+
+#mpVolume{
+  width: 120px;
+  accent-color: #fff; /* si tu navegador lo soporta */
+}
+
+.end-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(6px);
+}
+
+.end-overlay.show{
+  display: flex;
+}
+
+.end-card{
+  width: min(920px, 96vw);
+  background: rgba(20,20,20,.92);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+  padding: 16px;
+  position: relative;
+}
+
+.end-close{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  font-size: 16px;
+}
+
+.end-title{
+  font-size: 20px;
+  margin: 4px 0 2px 0;
+}
+
+.end-sub{
+  font-size: 14px;
+  opacity: .85;
+  margin-bottom: 12px;
+}
+
+.yt-wrap{
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(0,0,0,.35);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.yt-wrap iframe{
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.end-actions{
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.video-btn{
+  position: fixed;
+  top: 80px;
+  right: 14px;
+  z-index: 9999;
+
+  display: none;              /* OCULTO por defecto */
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px 28px;
+  max-width: 380px;
+
+  border-radius: 26px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #8b4513, #5d2906);
+  color: #ffffff;
+
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+
+  white-space: normal;
+  word-break: break-word;
+
+  box-shadow:
+    0 8px 0 #3e1b04,
+    0 16px 30px rgba(0,0,0,.35);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+
+/* cuando lo activemos por JS, le pondremos esta clase */
+.video-btn.show{
+  display: flex;
+}
+
+/* --- Nota de instrucciones --- */
+.note-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 15000;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding-top: 40px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+}
+
+.note-card{
+  width: min(420px, 92vw);
+  background: #fff7d6;
+  color: #3b2a14;
+
+  border-radius: 18px;
+  padding: 22px 24px 24px 24px;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.35),
+    inset 0 -6px 0 rgba(0,0,0,0.05);
+
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  position: relative;
+
+  animation: noteIn 0.6s cubic-bezier(.2,.7,.1,1);
+}
+
+@keyframes noteIn{
+  from{
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to{
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.note-close{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+
+  background: rgba(0,0,0,0.08);
+  color: #3b2a14;
+  font-size: 16px;
+}
+
+.note-close:hover{
+  background: rgba(0,0,0,0.15);
+}
+
+.note-title{
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.note-list{
+  padding-left: 18px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.note-list li{
+  margin-bottom: 8px;
+}
+
+
+
+
